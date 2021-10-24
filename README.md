@@ -1,7 +1,7 @@
-# Welcome to HouseParty!
+# Welcome to House Party!
 
-This is a web application built using Django and React that communicates with the Spotify api. Users will be able to create 'rooms' where they can host a party and play music from Spotify. Guest users will be able to join the room and vote to skip tracks or change playlists.
+House Party is a web application built using Django and React that communicates with the Spotify api. Host users will be able to create 'rooms' where they can host a party and play music from Spotify. Guest users will be able to join the room and vote to skip tracks or change playlists.
 
-# Learning
+# The Process
 
-I am learning a lot through this project. This is my first time working with Django and React and I am very excited to be creating something I can use. 
+This is my first experience with both Django and React. Needless to say, I am learning a ton! Thankfully, I do have experience with all of the languages involved so the learning curve really only includes the frameworks. By the end, I hope to not only have a working project to include on my resume, but also the knowledge to move forward and create other apps in the future.
