@@ -1,9 +1,38 @@
 from django.shortcuts import render
-from rest_framework import generics
-from .serializers import RoomSerializer
+from rest_framework import generics, status
+from .serializers import RoomSerializer, CreateRoomSerializer
 from .models import Room
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 # Create your views here.
 class RoomView(generics.ListAPIView):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
+
+class CreateRoomView(APIView):
+    serializer_class = CreateRoomSerializer
+
+    def post(self, request, format=None):
+        """Handle post request for create room"""
+        if not self.request.session.exists(self.request.session.session_key):
+            # if a current session does not exist, create one
+            self.request.session.create()
+        
+        serializer = self.serializer_class(data=request.data) # serialize data from the request to track data
+        if serializer.is_valid(): # if the data from the POST request is valid
+            guest_can_pause = serializer.data.get('guest_can_pause')
+            votes_to_skip = serializer.data.get('votes_to_skip')
+            host = self.request.session.session_key
+            queryset = Room.objects.filter(host=host) # creates a list of any rooms that already exist with the current session_key
+            if queryset.exists(): # check to see if there is anything in that list, if so, update the data with new data from POST
+                room = queryset[0]
+                room.guest_can_pause = guest_can_pause
+                room.votes_to_skip = votes_to_skip
+                room.save(update_fields=['guest_can_pause', 'votes_to_skip'])
+            else:
+                # otherwise create a new room with necessary data and new session_key
+                room = Room(host=host, guest_can_pause = guest_can_pause, votes_to_skip = votes_to_skip)
+                room.save()
+
+            return Response(RoomSerializer(room).data, status=status.HTTP_201_CREATED)
