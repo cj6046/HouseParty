@@ -33,7 +33,7 @@ export default class CreateRoomPage extends Component {
     handlePauseChange(e) {
         this.setState({
             guest_can_pause: e.target.value,
-        })
+        });
     }
 
     handleCreateButtonClicked() {
