@@ -10,3 +10,8 @@ class CreateRoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = ('guest_can_pause', 'votes_to_skip')
+
+class UpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Room
+        fields = ('guest_can_pause', 'votes_to_skip', 'code')
