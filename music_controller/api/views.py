@@ -1,7 +1,7 @@
 from django.db.models.query import QuerySet
 from django.shortcuts import render
 from rest_framework import generics, status
-from .serializers import RoomSerializer, CreateRoomSerializer, UpdateSerializer
+from .serializers import RoomSerializer, CreateRoomSerializer, UpdateRoomSerializer
 from .models import Room
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -110,7 +110,7 @@ class LeaveRoom(APIView):
 
 class UpdateRoomView(APIView):
     """Update the Room api based on host user preferences"""
-    serializer_class = UpdateSerializer
+    serializer_class = UpdateRoomSerializer
 
     def patch(self, request, format=None):
         """Submit patch request to update room only if user is host"""
@@ -120,26 +120,27 @@ class UpdateRoomView(APIView):
 
         # Get serialized data and make sure data is valid
         serializer = self.serializer_class(data=request.data)
-        if not serializer.is_valid():
-            return Response({'Bad Request':'Invalid Data'}, status=status.HTTP_400_BAD_REQUEST)
-        guest_can_pause = serializer.data.get('guest_can_pause')
-        votes_to_skip = serializer.data.get('votes_to_skip')
-        code = serializer.data.get('code')
+        if serializer.is_valid():   
+            guest_can_pause = serializer.data.get('guest_can_pause')
+            votes_to_skip = serializer.data.get('votes_to_skip')
+            code = serializer.data.get('code')
 
-        # Find room according to code (making sure it exists)
-        queryset = Room.objects.filter(code=code)
-        if not queryset.exists():
-            return Response({'Error':'Room Not Found'}, status=status.HTTP_404_NOT_FOUND)
-        room = queryset[0]
+            # Find room according to code (making sure it exists)
+            queryset = Room.objects.filter(code=code)
+            if not queryset.exists():
+                return Response({'Error':'Room Not Found'}, status=status.HTTP_404_NOT_FOUND)
+            room = queryset[0]
 
-        # Make sure user is host
-        user_id = self.request.session.session_key
-        if not user_id is room.host:
-            return Response({'Error':'Invalid access'}, status=status.HTTP_403_FORBIDDEN)
-        
-        # Update room data
-        room.guest_can_pause = guest_can_pause
-        room.votes_to_skip = votes_to_skip
-        room.save(update_fields=['guest_can_pause', 'votes_to_skip'])
-        return Response({'Success','Room Settings Updated'}, status=status.HTTP_200_OK)
+            # Make sure user is host
+            user_id = self.request.session.session_key
+            if room.host != user_id:
+                return Response({'Error':'Invalid access'}, status=status.HTTP_403_FORBIDDEN)
+            
+            # Update room data
+            room.guest_can_pause = guest_can_pause
+            room.votes_to_skip = votes_to_skip
+            room.save(update_fields=['guest_can_pause', 'votes_to_skip'])
+            return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
+        # print(serializer.errors)
+        return Response({'Bad Request':'Invalid Data'}, status=status.HTTP_400_BAD_REQUEST)
 
