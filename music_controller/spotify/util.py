@@ -11,6 +11,7 @@ from .credentials import CLIENT_ID, CLIENT_SECRET
 
 def update_or_create_user_tokens(session_id, refresh_token, access_token, expires_in, token_type):
     tokens = get_user_tokens(session_id)
+    print(expires_in)
     expires_in = timezone.now() + timedelta(seconds=expires_in)
     if tokens:
         tokens.refresh_token = refresh_token
