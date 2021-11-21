@@ -39,7 +39,7 @@ class CurrentSong(APIView):
         else:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
         host = room.host
-        endpoint = 'player/currently-playing'
+        endpoint = "player/currently-playing"
 
         # Get json response from spotify api using function in util.py
         response = execute_spotify_api_request(host, endpoint)
@@ -53,7 +53,7 @@ class CurrentSong(APIView):
         album_cover = item.get('album').get('image')[0].get('url')
         is_playing = response.get('is_playing')
         song_id = item.get('id')
-        artist_string = ''
+        artist_string = ""
         for i, artist in enumerate(item.get('artists')):
             if i > 0:
                 artist_string += ", "
@@ -69,7 +69,7 @@ class CurrentSong(APIView):
             'image_url': album_cover,
             'is_playing': is_playing,
             'votes': 0,
-            'id': song_id
+            'id': song_id,
         }
 
         # return song data as response
