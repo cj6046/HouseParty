@@ -97,6 +97,17 @@ class PlaySong(APIView):
             return Response({}, status=status.HTTP_204_NO_CONTENT)
         return Response({}, status=status.HTTP_403_FORBIDDEN)
 
+class SkipSong(APIView):
+    def post(self, request, format=None):
+        room_code = self.request.session.get('room_code')
+        room = Room.objects.filter(code=room_code)
+        if self.request.session.session_key == room.host:
+            room.votes.delete()
+            skip_song(room.host)
+        else:
+            # vote = Vote(user=)
+            pass
+
 def spotify_callback(request, format=None):
     """Redirect to the frontend from the Spotify callback"""
     code = request.GET.get('code')
