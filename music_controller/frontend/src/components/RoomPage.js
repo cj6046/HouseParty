@@ -61,6 +61,7 @@ export default class Room extends Component {
      * Updates state with info on the current song
      */
     getCurrentSong() {
+        console.log("We are in getCurrentSong")
         fetch("/spotify/current-song")
             .then((response) => {
                 if(!response.ok) {
@@ -72,6 +73,7 @@ export default class Room extends Component {
             })
             .then((data) => {
                 this.setState({ song: data });  
+                console.log(data);
             });
     }
 

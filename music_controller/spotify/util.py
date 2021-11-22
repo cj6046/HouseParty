@@ -2,16 +2,18 @@
 Handle the creation and updating of spotify api tokens
 """
 
-from requests import post, put, get
 from .models import SpotifyToken
 from django.utils import timezone
 from datetime import timedelta
 from .credentials import CLIENT_ID, CLIENT_SECRET
+from requests import post, put, get
+
 
 BASE_URL = "https://api.spotify.com/v1/me/"
 
 def update_or_create_user_tokens(session_id, refresh_token, access_token, expires_in, token_type):
     """Update current spotify token with new fields"""
+    print("We are in update_or_create_user_tokens")
     tokens = get_user_tokens(session_id)
     # print(expires_in)
     expires_in = timezone.now() + timedelta(seconds=expires_in)
@@ -27,10 +29,13 @@ def update_or_create_user_tokens(session_id, refresh_token, access_token, expire
 
 def get_user_tokens(session_id):
     """Return user tokens from SpotifyToken model"""
+    print("We are in get_user_tokens")
     user_tokens = SpotifyToken.objects.filter(user=session_id)
     if user_tokens.exists():
+        print(user_tokens[0])
         return user_tokens[0]
     else:
+        print("Tokens are None.")
         return None
 
 def is_spotify_authenticated(session_id):
@@ -63,7 +68,10 @@ def refresh_spotify_token(session_id):
 
 def execute_spotify_api_request(session_id, endpoint, post_=False, put_=False):
     """Handle different types of requests to spotify api"""
+    print("We are in execute_spotify_api_request")
     tokens = get_user_tokens(session_id)
+    print("We are back in execute_spotify_api_request")
+    print(tokens.access_token)
     headers = {
         'Content-Type' : 'application/json',
         'Authorization' : "Bearer " + tokens.access_token
@@ -79,7 +87,9 @@ def execute_spotify_api_request(session_id, endpoint, post_=False, put_=False):
 
     # Handle get request as default and transcribe info into json
     response = get(BASE_URL + endpoint, {}, headers=headers)
+    print("This response is in execute_spotify_api_request")
+    print(response)
     try:
         return response.json()
     except:
-        return {'Error' : 'Could not execute spotify api request'}
+        return {'error' : 'Could not execute spotify api request'}
